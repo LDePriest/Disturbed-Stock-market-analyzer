@@ -1,1 +1,1 @@
-# Disturbed-Stock-market-analyzer
+# Distributed-Stock-market-analyzer
