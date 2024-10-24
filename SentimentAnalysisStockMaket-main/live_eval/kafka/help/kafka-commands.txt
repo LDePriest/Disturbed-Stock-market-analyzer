@@ -1,2 +1,0 @@
-LIST TOPICS: ${KAFKA_HOME}/bin/kafka-topics --bootstrap-server localhost:9092 --list
-INSPECT TOPIC: ${KAFKA_HOME}/bin/kafka-topics --bootstrap-server=localhost:9092 --describe --topic TW_ANALYSIS
