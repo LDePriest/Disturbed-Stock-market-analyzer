@@ -1,6 +1,6 @@
 # IMPORTS
 import socket
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 import time
 
 # GLOBAL VARIABLES
@@ -19,7 +19,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # Allows reuse of address (Test)
 s.bind((HOST, PORT))
 
-def clientHandle(conn, addr):
+def clientHandle(conn, addr, queue):
     print(f'<<< NEW CONNECTION >>> {addr} has been connected.')
         
     connect = True
@@ -37,28 +37,44 @@ def clientHandle(conn, addr):
             if data == disconnect_msg:
                 connect = False
                 break
-                
+            
+            queue.put((addr, data))
             print(f'<<< TEST >>> {addr}: {data}')
-        
-    s.close()
-        
+    
+    conn.close()
+    print(f'<<< LOST CONNECTION >>> {addr} has been disconnected.')
+
+# Process from the queue
+def processQ(queue):
+    while True:
+        if not queue.empty():
+            addr, data = queue.get()
+            
+            if data == disconnect_msg:
+                print("<< TERMINATION >>")
+                break
+
+            print(f"Processing data from {addr}: {data}")
+        time.sleep(1)
+
 def start():
     s.listen()
     print(f'Server listening on port: {PORT}')
         
-    while True:
-        conn, addr = s.accept()
-            
-        process = Process(target=clientHandle, args=(conn, addr))
-            
-        #st = time.time()
-            
-        process.start()
-        #process.join()
-            
-        ##et = time.time()
-        #(f'Time: {et-st}')
+    queue = Queue()
+    process = Process(target=processQ, args=(queue,))
+    process.start()
     
+    while True:
+        try:
+            conn, addr = s.accept()
+            Cprocess = Process(target=clientHandle, args=(conn, addr, queue))
+                
+            Cprocess.start()
+            #process.join()
+        except Exception as e:
+            #Cprocess.close()
+            print(f'Error detected: {e}')
             
 if __name__ == '__main__':
     print('<<< STARTING SERVER >>>')
