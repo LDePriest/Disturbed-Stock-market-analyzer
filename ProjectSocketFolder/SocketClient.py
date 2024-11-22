@@ -1,5 +1,6 @@
 # IMPORTS
 import socket
+import queue as queue
 
 # GLOBAL VARIABLES
 IP_MAIN = socket.gethostbyname(socket.gethostname()) # IP of local machine
